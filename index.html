@@ -38,7 +38,7 @@
       font-weight: 600;
       color: #444;
     }
-    input, select {
+    input {
       width: 100%;
       padding: 10px;
       border: 2px solid #ff99cc;
@@ -46,11 +46,11 @@
       outline: none;
       font-size: 16px;
     }
-    input:focus, select:focus {
+    input:focus {
       border-color: #ff4d94;
     }
     button {
-      margin-top: 24px;
+      margin-top: 18px;
       background-color: #ff4d94;
       color: #fff;
       border: none;
@@ -64,6 +64,13 @@
     }
     button:hover {
       background-color: #ff1a75;
+    }
+    .pay-btn {
+      background-color: #28a745;
+      margin-top: 24px;
+    }
+    .pay-btn:hover {
+      background-color: #1e7e34;
     }
     .response-box {
       margin-top: 20px;
@@ -81,22 +88,33 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Polity MCQ Generator</h1>
+
     <label for="topic">Enter Topic</label>
     <input type="text" id="topic" placeholder="e.g. Fundamental Rights">
 
     <label for="difficulty">Enter Difficulty</label>
     <input type="text" id="difficulty" placeholder="e.g. Easy, Medium, Hard">
 
+    <!-- CASHFREE PAYMENT BUTTON -->
+    <button class="pay-btn" onclick="window.open('https://payments.cashfree.com/forms/politymcqs','_blank')">
+      🔐 Pay & Unlock MCQs
+    </button>
+
+    <!-- EXISTING BUTTON (UNCHANGED) -->
     <button id="submitBtn">Generate Questions</button>
 
-    <div class="response-box" id="responseBox">Enter details above and click Generate.</div>
+    <div class="response-box" id="responseBox">
+      Enter details above and click Generate.
+    </div>
   </div>
 
   <script>
     const WEBHOOK = 'https://hook.eu2.make.com/qb95s4kwimg5w175sdh6kkx7xecyiequ';
+
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const topic = document.getElementById('topic').value.trim();
       const difficulty = document.getElementById('difficulty').value.trim();
@@ -117,7 +135,8 @@
           body: JSON.stringify(payload)
         });
         const data = await res.text();
-        responseBox.innerText = `📘 Topic: ${topic}\n🎯 Difficulty: ${difficulty}\n\n${data}`;
+        responseBox.innerText =
+          `📘 Topic: ${topic}\n🎯 Difficulty: ${difficulty}\n\n${data}`;
       } catch (err) {
         responseBox.innerText = 'Error sending data. Please try again.';
       }
