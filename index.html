@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UPSC Polity MCQ Generator</title>
+
   <style>
     body {
       margin: 0;
@@ -50,7 +51,7 @@
       border-color: #ff4d94;
     }
     button {
-      margin-top: 18px;
+      margin-top: 24px;
       background-color: #ff4d94;
       color: #fff;
       border: none;
@@ -58,33 +59,22 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      transition: background 0.2s ease;
       display: block;
       width: 100%;
     }
     button:hover {
       background-color: #ff1a75;
     }
-    .pay-btn {
-      background-color: #28a745;
-      margin-top: 24px;
-    }
-    .pay-btn:hover {
-      background-color: #1e7e34;
-    }
     .response-box {
       margin-top: 20px;
       padding: 20px;
       background: #fff;
       border-radius: 10px;
-      color: #333;
       min-height: 100px;
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
-      text-align: justify;
-      line-height: 1.5;
       max-height: 70vh;
       overflow-y: auto;
       white-space: pre-wrap;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -99,12 +89,6 @@
     <label for="difficulty">Enter Difficulty</label>
     <input type="text" id="difficulty" placeholder="e.g. Easy, Medium, Hard">
 
-    <!-- CASHFREE PAYMENT BUTTON -->
-    <button class="pay-btn" onclick="window.open('https://payments.cashfree.com/forms/politymcqs','_blank')">
-      🔐 Pay & Unlock MCQs
-    </button>
-
-    <!-- EXISTING BUTTON (UNCHANGED) -->
     <button id="submitBtn">Generate Questions</button>
 
     <div class="response-box" id="responseBox">
@@ -114,6 +98,10 @@
 
   <script>
     const WEBHOOK = 'https://hook.eu2.make.com/qb95s4kwimg5w175sdh6kkx7xecyiequ';
+    const CASHFREE_URL = 'https://payments.cashfree.com/forms/politymcqs';
+
+    const params = new URLSearchParams(window.location.search);
+    const paymentDone = params.get('paid') === '1';
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const topic = document.getElementById('topic').value.trim();
@@ -122,6 +110,16 @@
 
       if (!topic || !difficulty) {
         responseBox.innerText = 'Please fill in both fields.';
+        return;
+      }
+
+      if (!paymentDone) {
+        const returnUrl =
+          window.location.origin +
+          window.location.pathname +
+          `?paid=1&topic=${encodeURIComponent(topic)}&difficulty=${encodeURIComponent(difficulty)}`;
+
+        window.location.href = CASHFREE_URL + `?return_url=${encodeURIComponent(returnUrl)}`;
         return;
       }
 
@@ -141,6 +139,13 @@
         responseBox.innerText = 'Error sending data. Please try again.';
       }
     });
+
+    if (paymentDone) {
+      const t = params.get('topic');
+      const d = params.get('difficulty');
+      if (t) document.getElementById('topic').value = t;
+      if (d) document.getElementById('difficulty').value = d;
+    }
   </script>
 </body>
 </html>
