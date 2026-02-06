@@ -7,27 +7,24 @@
 
   <script>
   /* ================= PAYMENT GATE LOGIC ================= */
+  (function() {
+    const PAYMENT_URL = "https://payments.cashfree.com/forms/mcqspolity";
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get("payment");
 
-  // Cashfree payment page
-  const PAYMENT_URL = "https://payments.cashfree.com/forms/mcqspolity";
+    // 1. If user just finished paying, save status and clean URL
+    if (paymentStatus === "success") {
+      localStorage.setItem("polity_mcqs_paid", "true");
+      // Remove "?payment=success" from address bar without reloading
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
 
-  // Read URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentStatus = urlParams.get("payment");
-
-  // If payment successful, store it
-  if (paymentStatus === "success") {
-    localStorage.setItem("polity_mcqs_paid", "true");
-
-    // Clean URL
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-
-  // If not paid, force payment
-  if (localStorage.getItem("polity_mcqs_paid") !== "true") {
-    window.location.href = PAYMENT_URL;
-  }
-
+    // 2. Direct Access Check: If not paid, boot them to Cashfree
+    if (localStorage.getItem("polity_mcqs_paid") !== "true") {
+      window.location.href = PAYMENT_URL;
+    }
+  })();
   /* ===================================================== */
   </script>
 
@@ -72,6 +69,7 @@
       border-radius: 8px;
       outline: none;
       font-size: 16px;
+      box-sizing: border-box; /* Ensures padding doesn't break width */
     }
     input:focus {
       border-color: #ff4d94;
@@ -87,6 +85,7 @@
       font-size: 16px;
       display: block;
       width: 100%;
+      font-weight: bold;
     }
     button:hover {
       background-color: #ff1a75;
@@ -101,6 +100,7 @@
       overflow-y: auto;
       white-space: pre-wrap;
       line-height: 1.5;
+      border: 1px solid #eee;
     }
   </style>
 </head>
@@ -144,9 +144,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
+        
         const data = await res.text();
-        responseBox.innerText =
-          `📘 Topic: ${topic}\n🎯 Difficulty: ${difficulty}\n\n${data}`;
+        responseBox.innerText = `📘 Topic: ${topic}\n🎯 Difficulty: ${difficulty}\n\n${data}`;
       } catch (err) {
         responseBox.innerText = "Error sending data. Please try again.";
       }
@@ -154,4 +154,3 @@
   </script>
 </body>
 </html>
-
