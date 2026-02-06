@@ -99,19 +99,25 @@
   <script>
     const WEBHOOK = 'https://hook.eu2.make.com/qb95s4kwimg5w175sdh6kkx7xecyiequ';
     const CASHFREE_URL = 'https://payments.cashfree.com/forms/politymcqs';
+    const SUCCESS_URL = 'https://chinmayeeupscandai.github.io/politymcqs/?payment=success';
 
     const params = new URLSearchParams(window.location.search);
-    const paymentDone = params.get('paid') === '1';
+    const paymentSuccess = params.get('payment') === 'success';
 
-    // 🔒 FORCE PAYMENT ON PAGE LOAD
-    if (!paymentDone) {
-      const returnUrl =
-        window.location.origin +
-        window.location.pathname +
-        '?paid=1';
+    // ✅ If user just paid, remember it permanently (per browser)
+    if (paymentSuccess) {
+      localStorage.setItem('polity_mcqs_paid', 'true');
 
+      // Clean URL (remove ?payment=success)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const alreadyPaid = localStorage.getItem('polity_mcqs_paid') === 'true';
+
+    // 🔒 Force payment ONLY if not paid before
+    if (!alreadyPaid) {
       window.location.replace(
-        CASHFREE_URL + `?return_url=${encodeURIComponent(returnUrl)}`
+        CASHFREE_URL + `?return_url=${encodeURIComponent(SUCCESS_URL)}`
       );
     }
 
