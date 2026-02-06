@@ -103,6 +103,18 @@
     const params = new URLSearchParams(window.location.search);
     const paymentDone = params.get('paid') === '1';
 
+    // 🔒 FORCE PAYMENT ON PAGE LOAD
+    if (!paymentDone) {
+      const returnUrl =
+        window.location.origin +
+        window.location.pathname +
+        '?paid=1';
+
+      window.location.replace(
+        CASHFREE_URL + `?return_url=${encodeURIComponent(returnUrl)}`
+      );
+    }
+
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const topic = document.getElementById('topic').value.trim();
       const difficulty = document.getElementById('difficulty').value.trim();
@@ -110,16 +122,6 @@
 
       if (!topic || !difficulty) {
         responseBox.innerText = 'Please fill in both fields.';
-        return;
-      }
-
-      if (!paymentDone) {
-        const returnUrl =
-          window.location.origin +
-          window.location.pathname +
-          `?paid=1&topic=${encodeURIComponent(topic)}&difficulty=${encodeURIComponent(difficulty)}`;
-
-        window.location.href = CASHFREE_URL + `?return_url=${encodeURIComponent(returnUrl)}`;
         return;
       }
 
@@ -139,13 +141,6 @@
         responseBox.innerText = 'Error sending data. Please try again.';
       }
     });
-
-    if (paymentDone) {
-      const t = params.get('topic');
-      const d = params.get('difficulty');
-      if (t) document.getElementById('topic').value = t;
-      if (d) document.getElementById('difficulty').value = d;
-    }
   </script>
 </body>
 </html>
