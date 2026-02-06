@@ -5,6 +5,32 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UPSC Polity MCQ Generator</title>
 
+  <script>
+  /* ================= PAYMENT GATE LOGIC ================= */
+
+  // Cashfree payment page
+  const PAYMENT_URL = "https://payments.cashfree.com/forms/politymcqs";
+
+  // Read URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentStatus = urlParams.get("payment");
+
+  // If payment successful, store it
+  if (paymentStatus === "success") {
+    localStorage.setItem("polity_mcqs_paid", "true");
+
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // If not paid, force payment
+  if (localStorage.getItem("polity_mcqs_paid") !== "true") {
+    window.location.href = PAYMENT_URL;
+  }
+
+  /* ===================================================== */
+  </script>
+
   <style>
     body {
       margin: 0;
@@ -97,55 +123,32 @@
   </div>
 
   <script>
-    const WEBHOOK = 'https://hook.eu2.make.com/qb95s4kwimg5w175sdh6kkx7xecyiequ';
-    const CASHFREE_URL = 'https://payments.cashfree.com/forms/politymcqs';
+    const WEBHOOK = "https://hook.eu2.make.com/qb95s4kwimg5w175sdh6kkx7xecyiequ";
 
-    const params = new URLSearchParams(window.location.search);
-
-    // ✅ Detect REAL Cashfree success redirect
-    const cashfreePaid =
-      params.get('cf_payment_id') ||
-      params.get('order_id') ||
-      params.get('txStatus') === 'SUCCESS';
-
-    if (cashfreePaid) {
-      localStorage.setItem('polity_mcqs_paid', 'true');
-
-      // Clean URL after saving payment
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    const alreadyPaid = localStorage.getItem('polity_mcqs_paid') === 'true';
-
-    // 🔒 Force payment only if not paid
-    if (!alreadyPaid) {
-      window.location.replace(CASHFREE_URL);
-    }
-
-    document.getElementById('submitBtn').addEventListener('click', async () => {
-      const topic = document.getElementById('topic').value.trim();
-      const difficulty = document.getElementById('difficulty').value.trim();
-      const responseBox = document.getElementById('responseBox');
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const topic = document.getElementById("topic").value.trim();
+      const difficulty = document.getElementById("difficulty").value.trim();
+      const responseBox = document.getElementById("responseBox");
 
       if (!topic || !difficulty) {
-        responseBox.innerText = 'Please fill in both fields.';
+        responseBox.innerText = "Please fill in both fields.";
         return;
       }
 
-      responseBox.innerText = 'Generating questions...';
+      responseBox.innerText = "Generating questions...";
 
       try {
         const payload = { topic, difficulty };
         const res = await fetch(WEBHOOK, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
         const data = await res.text();
         responseBox.innerText =
           `📘 Topic: ${topic}\n🎯 Difficulty: ${difficulty}\n\n${data}`;
       } catch (err) {
-        responseBox.innerText = 'Error sending data. Please try again.';
+        responseBox.innerText = "Error sending data. Please try again.";
       }
     });
   </script>
