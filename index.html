@@ -6,26 +6,34 @@
   <title>UPSC Polity MCQ Generator</title>
 
   <script>
-  /* ================= PAYMENT GATE LOGIC ================= */
+  /* ================= AUTOMATED GATE LOGIC ================= */
   (function() {
+    const PORTAL_URL = "https://chinmayeeupscandai.github.io/environmentmcqs/";
     const PAYMENT_URL = "https://payments.cashfree.com/forms/mcqspolity";
+    
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get("payment");
 
-    // 1. If user just finished paying, save status and clean URL
+    // 1. CHECK FOR SUCCESS SIGNAL FROM CASHFREE
     if (paymentStatus === "success") {
+      // Mark as paid in local storage
       localStorage.setItem("polity_mcqs_paid", "true");
-      // Remove "?payment=success" from address bar without reloading
-      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
+      
+      // Redirect to the clean portal URL (removing the ?payment=success)
+      window.location.href = PORTAL_URL;
+      return; // Stop execution
     }
 
-    // 2. Direct Access Check: If not paid, boot them to Cashfree
-    if (localStorage.getItem("polity_mcqs_paid") !== "true") {
+    // 2. CHECK IF ALREADY PAID (FOR RETURNING USERS)
+    if (localStorage.getItem("polity_mcqs_paid") === "true") {
+      // If they are on the root URL and have paid, let them stay.
+      // No redirect needed.
+    } else {
+      // 3. NOT PAID: Redirect to Cashfree
       window.location.href = PAYMENT_URL;
     }
   })();
-  /* ===================================================== */
+  /* ======================================================== */
   </script>
 
   <style>
@@ -39,7 +47,6 @@
       align-items: flex-start;
       min-height: 100vh;
       padding: 40px 0;
-      overflow-y: auto;
     }
     .container {
       background-color: #ffe6f2;
@@ -49,7 +56,6 @@
       width: 90%;
       max-width: 700px;
       text-align: justify;
-      overflow-y: auto;
     }
     h1 {
       color: #ff4d94;
@@ -64,12 +70,12 @@
     }
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: 2px solid #ff99cc;
       border-radius: 8px;
       outline: none;
       font-size: 16px;
-      box-sizing: border-box; /* Ensures padding doesn't break width */
+      box-sizing: border-box;
     }
     input:focus {
       border-color: #ff4d94;
